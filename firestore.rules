@@ -1,0 +1,32 @@
+rules_version = '2';
+
+// Basket security rules.
+// The household code (e.g. maple-otter-cloud-4821) acts as the password: you can only
+// reach a list if you already know its code, because listing all households is blocked.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function validCode(code) {
+      return code.matches('^[a-z]+-[a-z]+-[a-z]+-[0-9]{4}$');
+    }
+
+    match /households/{code} {
+      // Look up one household by its exact code, or create a new one. Never list them all.
+      allow get, create: if signedIn() && validCode(code);
+      allow list, update, delete: if false;
+
+      match /{sub}/{id} {
+        allow read, write: if signedIn() && validCode(code) && sub in ['items', 'favourites'];
+      }
+    }
+
+    // Everything else is closed.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
