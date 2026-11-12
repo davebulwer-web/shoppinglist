@@ -36,6 +36,8 @@ Until step 5 is done, the app shows an "Almost there" screen with a link to a de
 
 ## Installing on your phones
 
+The easiest way is to open <https://github.com/davebulwer-web/shoppinglist/releases/latest/download/Basket.apk> on the phone. Every build is published as a public Release, so no GitHub account is needed. Or, from the Actions tab:
+
 1. On GitHub, open the **Actions** tab, then the latest green **Build Android APK** run.
 2. Download the **basket-apk** artifact (a zip containing `Basket.apk`). You need to be signed in to GitHub.
 3. Get `Basket.apk` onto each phone, for example via Google Drive, email or a USB cable.
@@ -65,7 +67,8 @@ You can find the code again under **Settings → Household**. Keep it private, b
 - It has its own app ID (`uk.bulwer.shoppinglist.solo`), name and amber icon, so it can be installed alongside the shared Basket.
 - **Limits:** it works on one phone only. Uninstalling the app deletes the list, though Android's Google backup may restore it on reinstall or on a new phone. Don't rely on that.
 
-**Download:** in the latest **Build Android APK** run on the **Actions** tab, download **basket-solo-apk** (it contains `BasketSolo.apk`) and install it the same way as Basket.
+**Download (no GitHub account needed):** open this link on the phone. It always points to the newest build:
+<https://github.com/davebulwer-web/shoppinglist/releases/latest/download/BasketSolo.apk>
 
 To build it locally, run `npm run build:solo` (web) or `npm run android:apk:solo` (APK).
 

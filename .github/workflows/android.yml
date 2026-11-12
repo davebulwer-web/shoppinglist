@@ -5,6 +5,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+# Needed so the build can publish a public Release with the APKs attached.
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -63,3 +67,16 @@ jobs:
         with:
           name: basket-solo-apk
           path: BasketSolo.apk
+
+      # Publish both APKs as a public Release. Unlike artifacts, Release files can be
+      # downloaded by anyone without a GitHub account. Only for pushes to the default branch.
+      - name: Publish release
+        if: github.event_name == 'push' && github.ref_name == github.event.repository.default_branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "build-${{ github.run_number }}" Basket.apk BasketSolo.apk \
+            --target "${{ github.sha }}" \
+            --title "Basket build ${{ github.run_number }}" \
+            --notes "Basket.apk is the shared list. BasketSolo.apk is the standalone version that keeps the list on the phone. Download on your phone and open it to install." \
+            --latest
