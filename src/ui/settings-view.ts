@@ -1,4 +1,5 @@
 import { category, type CategoryId } from '../categories';
+import { APP_NAME, isSolo } from '../edition';
 import type { Favourite } from '../types';
 import type { Ctx } from './context';
 import { h, icon } from './dom';
@@ -102,9 +103,10 @@ export function openSettings(ctx: Ctx, focus?: 'quick') {
     );
 
     content.replaceChildren(
-      section('You', h('label', { class: 'label', text: 'Your name (shown on items you add)' }), nameInput),
+      ...[
+      !isSolo && section('You', h('label', { class: 'label', text: 'Your name (shown on items you add)' }), nameInput),
       quickSection,
-      section(
+      !isSolo && section(
         'Household',
         h('p', { class: 'muted small', text: 'Your partner joins by entering this code on their phone. Keep it private — anyone with it can see and edit your list.' }),
         h(
@@ -152,7 +154,8 @@ export function openSettings(ctx: Ctx, focus?: 'quick') {
           ),
         ),
       ),
-      h('p', { class: 'version', text: `Basket ${__APP_VERSION__}${ctx.demo ? ' · demo mode' : ''}` }),
+      h('p', { class: 'version', text: `${APP_NAME} ${__APP_VERSION__}${ctx.demo ? ' · demo mode' : ''}` }),
+      ].filter((el): el is HTMLElement => el instanceof HTMLElement),
     );
   };
 

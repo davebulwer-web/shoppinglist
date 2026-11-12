@@ -5,7 +5,7 @@ import { App as CapApp } from '@capacitor/app';
 import { Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
 
-import { isFirebaseConfigured } from './firebase-config';
+import { isSolo } from './edition';
 import { DEFAULT_FAVOURITES } from './logic';
 import { loadPrefs, savePref, type Theme } from './prefs';
 import type { ListStore } from './store';
@@ -31,10 +31,11 @@ async function demoStore(): Promise<ListStore> {
   const { DemoStore } = await import('./demo-store');
   const now = Date.now();
   const min = 60_000;
+  let id = 0;
   const item = (name: string, category: string, addedBy: string, ago: number, extra: object = {}) =>
-    ({ name, category, addedBy, addedAt: now - ago * min, qty: 1, note: '', purchased: false, ...extra }) as never;
+    ({ id: `demo${id++}`, name, category, addedBy, addedAt: now - ago * min, qty: 1, note: '', purchased: false, ...extra }) as never;
   return new DemoStore({
-    favourites: DEFAULT_FAVOURITES.map((f, order) => ({ ...f, order })),
+    favourites: DEFAULT_FAVOURITES.map((f, order) => ({ ...f, order, id: `fav${order}` })),
     items: [
       item('Bananas', 'produce', 'Sam', 300),
       item('Cherry tomatoes', 'produce', 'Dave', 200, { note: 'The small vine ones' }),
@@ -49,18 +50,27 @@ async function demoStore(): Promise<ListStore> {
   });
 }
 
+async function openStore(demo: boolean): Promise<ListStore> {
+  if (demo) return demoStore();
+  if (isSolo) return (await import('./local-store')).openPhoneStore();
+  return new (await import('./firebase-store')).FirebaseStore();
+}
+
 async function main() {
   const demo = new URLSearchParams(location.search).has('demo');
-  if (!demo && !isFirebaseConfigured()) {
+  // The Solo build never touches Firebase; this branch is removed from its bundle entirely.
+  if (!isSolo && !demo && !(await import('./firebase-config')).isFirebaseConfigured()) {
     applyTheme('dark');
     renderNotConfigured(root);
     return;
   }
 
   const prefs = demo ? { name: 'Dave', code: 'demo', theme: 'dark' as Theme } : await loadPrefs();
+  // Solo has one list on this phone: no name or household code needed.
+  if (isSolo) Object.assign(prefs, { name: prefs.name || 'Me', code: 'local' });
   applyTheme(prefs.theme);
 
-  const store: ListStore = demo ? await demoStore() : new (await import('./firebase-store')).FirebaseStore();
+  const store = await openStore(demo);
 
   const state: AppState = {
     items: [],

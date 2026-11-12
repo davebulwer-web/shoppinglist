@@ -1,4 +1,5 @@
 import { category } from '../categories';
+import { APP_NAME, isSolo } from '../edition';
 import { groupByCategory, initials, planQuickAdd, purchasedItems } from '../logic';
 import type { Favourite, Item } from '../types';
 import type { Ctx } from './context';
@@ -51,13 +52,13 @@ function itemRow(ctx: Ctx, item: Item): HTMLElement {
       'div',
       { class: 'row-text' },
       h('div', { class: 'row-title' }, h('span', { class: 'row-name', text: item.name }), item.qty > 1 && h('span', { class: 'qty', text: `×${item.qty}` })),
-      (item.note || item.purchased) &&
+      (item.note || (item.purchased && !isSolo)) &&
         h('div', {
           class: 'row-note',
-          text: item.purchased && item.purchasedBy ? `Got by ${item.purchasedBy}${item.note ? ` · ${item.note}` : ''}` : item.note,
+          text: item.purchased && item.purchasedBy && !isSolo ? `Got by ${item.purchasedBy}${item.note ? ` · ${item.note}` : ''}` : item.note,
         }),
     ),
-    item.addedBy && h('span', { class: 'avatar', text: initials(item.addedBy), attrs: { title: `Added by ${item.addedBy}` } }),
+    !isSolo && item.addedBy && h('span', { class: 'avatar', text: initials(item.addedBy), attrs: { title: `Added by ${item.addedBy}` } }),
   );
   const row = h(
     'li',
@@ -159,6 +160,7 @@ function itemRow(ctx: Ctx, item: Item): HTMLElement {
 }
 
 function syncBadge(ctx: Ctx) {
+  if (isSolo) return h('span', { class: 'sync sync-local', text: 'Saved on this phone' });
   const labels = { synced: 'Synced', pending: 'Syncing…', offline: 'Offline · will sync' } as const;
   return h('span', { class: `sync sync-${ctx.state.sync}` }, h('span', { class: 'sync-dot' }), labels[ctx.state.sync]);
 }
@@ -175,7 +177,7 @@ export function renderList(ctx: Ctx, root: HTMLElement) {
     h(
       'div',
       { class: 'top-text' },
-      h('h1', { class: 'title', text: 'Basket' }),
+      h('h1', { class: 'title', text: APP_NAME }),
       h('div', { class: 'subtitle' }, h('span', { text: toBuy === 0 ? 'All done' : `${toBuy} to buy` }), h('span', { class: 'sep', text: '·' }), syncBadge(ctx)),
     ),
     h('button', { class: 'icon-btn', attrs: { 'aria-label': 'Settings' }, onclick: () => openSettings(ctx) }, icon(ICONS.settings)),
@@ -239,7 +241,7 @@ export function renderList(ctx: Ctx, root: HTMLElement) {
             class: 'btn btn-small btn-ghost',
             text: 'Clear',
             onclick: async () => {
-              if (!(await confirmSheet('Clear the basket?', `Removes ${done.length} bought item${done.length === 1 ? '' : 's'} from both phones.`, 'Clear'))) return;
+              if (!(await confirmSheet('Clear the basket?', `Removes ${done.length} bought item${done.length === 1 ? '' : 's'}${isSolo ? '' : ' from both phones'}.`, 'Clear'))) return;
               void ctx.store.deleteItems(done.map((i) => i.id));
               tap('medium');
               toast(`Cleared ${done.length} item${done.length === 1 ? '' : 's'}`, { label: 'Undo', run: () => void ctx.store.restoreItems(done) }, 6000);

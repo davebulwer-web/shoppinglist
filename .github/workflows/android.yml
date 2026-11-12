@@ -33,14 +33,33 @@ jobs:
       - name: Sync Capacitor Android project
         run: npx cap sync android
 
-      - name: Build APK
+      - name: Build Basket APK (shared list)
         working-directory: android
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
-          cp app/build/outputs/apk/debug/app-debug.apk ../Basket.apk
+          ./gradlew assembleSharedDebug --no-daemon
+          cp app/build/outputs/apk/shared/debug/app-shared-debug.apk ../Basket.apk
 
       - uses: actions/upload-artifact@v4
         with:
           name: basket-apk
           path: Basket.apk
+
+      # Basket Solo: the standalone edition that keeps the list on the phone (no Firebase).
+      - name: Build Solo web app
+        run: npm run build:solo
+
+      - name: Check the Solo build contains no Firebase
+        run: "! grep -rlE 'firestore|identitytoolkit' dist/"
+
+      - name: Build Basket Solo APK
+        run: |
+          npx cap sync android
+          cd android
+          ./gradlew assembleSoloDebug --no-daemon
+          cp app/build/outputs/apk/solo/debug/app-solo-debug.apk ../BasketSolo.apk
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: basket-solo-apk
+          path: BasketSolo.apk

@@ -56,6 +56,19 @@ You can find the code again under **Settings → Household**. Keep it private, b
 - **+** adds an item. Press Enter on the keyboard to add it and start the next one straight away.
 - Tap a **quick-add button** to add that item, or to raise its quantity if it's already on the list.
 
+## Basket Solo (standalone edition)
+
+**Basket Solo** is a separate APK for someone who wants the app just for themselves. It is built from the same code, but the whole list is stored on their phone:
+
+- No Firebase, no account, no household code, and no internet needed. The Solo build contains no Firebase code or connection details at all.
+- It has the same list, quick-add buttons, aisles, quantities, notes and Clear (with Undo) as Basket. There are no "who added" initials, because there is only one person.
+- It has its own app ID (`uk.bulwer.shoppinglist.solo`), name and amber icon, so it can be installed alongside the shared Basket.
+- **Limits:** it works on one phone only. Uninstalling the app deletes the list, though Android's Google backup may restore it on reinstall or on a new phone. Don't rely on that.
+
+**Download:** in the latest **Build Android APK** run on the **Actions** tab, download **basket-solo-apk** (it contains `BasketSolo.apk`) and install it the same way as Basket.
+
+To build it locally, run `npm run build:solo` (web) or `npm run android:apk:solo` (APK).
+
 ## Development
 
 ```bash
@@ -63,7 +76,8 @@ npm install
 npm run dev          # http://localhost:5173/?demo uses an in-memory demo list, no Firebase needed
 npm test             # unit tests (vitest)
 npm run build        # type-check + production build
-npm run android:apk  # local APK build (needs the Android SDK)
+npm run android:apk  # local APK build of Basket (needs the Android SDK)
+npm run android:apk:solo  # local APK build of Basket Solo
 ```
 
 The debug signing key `android/app/basket-debug.keystore` is committed on purpose so every build can update the installed app. It is only suitable for a private, sideloaded app like this one.

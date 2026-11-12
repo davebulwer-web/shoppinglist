@@ -218,3 +218,4 @@ h1, h2, h3, p { margin: 0; }
 .toast.at-top { bottom: auto; top: calc(16px + env(safe-area-inset-top)); transform: translate(-50%, -20px); }
 .toast.at-top.show { transform: translate(-50%, 0); }
 body.locked { overflow: hidden; }
+.sync-local { color: var(--text-2); }

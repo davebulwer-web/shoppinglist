@@ -17,6 +17,20 @@ android {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    // Two editions from one codebase:
+    //   shared - the Firebase-backed list for the household (uk.bulwer.shoppinglist)
+    //   solo   - Basket Solo, list stored only on the phone (uk.bulwer.shoppinglist.solo)
+    // Different app IDs, so both can be installed side by side.
+    flavorDimensions "edition"
+    productFlavors {
+        shared {
+            dimension "edition"
+        }
+        solo {
+            dimension "edition"
+            applicationIdSuffix ".solo"
+        }
+    }
     // A fixed debug key (committed on purpose) so every CI build has the same signature
     // and can be installed as an update without uninstalling first.
     signingConfigs {

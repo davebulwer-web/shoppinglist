@@ -11,7 +11,10 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "android:sync": "npm run build && npx cap sync android",
-    "android:apk": "npm run android:sync && cd android && ./gradlew assembleDebug"
+    "android:apk": "npm run android:sync && cd android && ./gradlew assembleSharedDebug",
+    "build:solo": "tsc --noEmit && vite build --mode solo",
+    "android:sync:solo": "npm run build:solo && npx cap sync android",
+    "android:apk:solo": "npm run android:sync:solo && cd android && ./gradlew assembleSoloDebug"
   },
   "dependencies": {
     "@capacitor/android": "7.4.3",

@@ -1,4 +1,5 @@
 import { CATEGORIES, guessCategory, type CategoryId } from '../categories';
+import { isSolo } from '../edition';
 import { findOpenItem, rememberedCategory, suggestions } from '../logic';
 import type { Item } from '../types';
 import type { Ctx } from './context';
@@ -191,7 +192,7 @@ export function openItemSheet(ctx: Ctx, existing?: Item) {
           class: 'btn btn-ghost btn-danger-text',
           attrs: { type: 'button' },
           onclick: async () => {
-            if (await confirmSheet(`Remove ${existing.name}?`, 'It will disappear from both phones.', 'Remove')) {
+            if (await confirmSheet(`Remove ${existing.name}?`, isSolo ? 'You can undo this straight after.' : 'It will disappear from both phones.', 'Remove')) {
               void store.deleteItem(existing.id);
               close();
               toast(`Removed ${existing.name}`, { label: 'Undo', run: () => void store.restoreItems([existing]) });
